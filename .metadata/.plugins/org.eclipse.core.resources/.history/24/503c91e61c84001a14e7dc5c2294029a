@@ -1,7 +1,0 @@
-package com.aeox.jkaiser.dto;
-
-public abstract class Job<P,R> {
-	private String name;
-	private String version;
-	private JobContext<P> context;
-}

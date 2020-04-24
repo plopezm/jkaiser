@@ -1,6 +1,0 @@
-package com.aeox.jkaiser.dto;
-
-public class Parameter {
-	private String key;
-	private String type;
-}

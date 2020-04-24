@@ -1,5 +1,0 @@
-package com.aeox.jkaiser.core;
-
-public enum ParameterType {
-	INTEGER, FLOAT, STRING, BOOL
-}

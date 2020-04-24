@@ -1,9 +1,0 @@
-package com.aeox.jkaiser.exception;
-
-public class ParameterNotFoundException extends KaiserException {
-	public ParameterNotFoundException(String msg, int httpCode) {
-		super("A required parameter not found in the context", 400);
-	}
-
-	private static final long serialVersionUID = 6167386626150587080L;
-}

@@ -1,9 +1,0 @@
-package com.aeox.jkaiser.plugins.logger;
-import com.aeox.jkaiser.core.Status;
-import com.aeox.jkaiser.core.Task;
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
-public class LoggerTask extends Task{
-		
-}

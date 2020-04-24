@@ -1,5 +1,0 @@
-package com.aeox.jkaiser.dto;
-
-public interface Job {
-
-}
