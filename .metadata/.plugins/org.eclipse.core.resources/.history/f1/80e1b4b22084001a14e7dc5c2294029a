@@ -1,0 +1,29 @@
+package com.aeox.jkaiser.dto;
+
+import com.aeox.jkaiser.exception.KaiserException;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
+@Data
+@AllArgsConstructor
+public abstract class Task<R> {
+	private String name;
+	private String description;
+	private Status status;
+	
+	public abstract Result<R> onCall(JobContext context) throws KaiserException;
+	
+	public Result<R> run(JobContext context) {
+		log.info("Executing job {}", this.name);
+		Result<R> result;
+		try {
+			result = this.onCall(context);
+		} catch (KaiserException e) {
+			result = new ExceptionResult(e.getMessage()); 
+		}
+		return result;
+	}
+}

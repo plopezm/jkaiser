@@ -1,0 +1,14 @@
+package com.aeox.jkaiser.engine;
+
+import org.springframework.stereotype.Service;
+
+import com.aeox.jkaiser.dto.Result;
+
+@Service
+public class JobEngine {
+
+	public Result<T> runJob() {
+		
+	}
+	
+}

@@ -1,0 +1,8 @@
+package com.aeox.jkaiser.core;
+
+public class Snippet {
+	public static void main(String[] args) {
+		pluginsFolder
+	}
+}
+

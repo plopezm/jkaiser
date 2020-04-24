@@ -1,0 +1,8 @@
+package com.aeox.jkaiser.engine;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class JobEngine {
+
+}

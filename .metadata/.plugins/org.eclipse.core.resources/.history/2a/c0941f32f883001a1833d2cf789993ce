@@ -1,0 +1,7 @@
+package com.aeox.jkaiser.dto;
+
+public interface Result<T> {
+	T getResult();
+	boolean wasError();
+	JobStatus getStatus();
+}

@@ -1,0 +1,23 @@
+package com.aeox.jkaiser.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
+@Data
+@AllArgsConstructor
+public abstract class Task<P, R> {
+	private String name;
+	private String description;
+	private Status status;
+	
+	public abstract Result<R> onCall();
+	
+	public Result<R> run(JobContext<P> context) {
+		log.info("Executing job {}", this.name);
+		return this.onCall();
+	}
+}

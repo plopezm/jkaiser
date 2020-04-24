@@ -1,0 +1,5 @@
+package com.aeox.jkaiser.exception;
+
+public class KaiserException extends RuntimeException {
+
+}

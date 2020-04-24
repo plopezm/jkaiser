@@ -1,0 +1,7 @@
+package com.aeox.jkaiser.dto;
+
+import java.util.Map;
+
+public class JobContext<T> {
+	private Map<String, T> params;	
+}

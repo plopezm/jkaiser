@@ -1,0 +1,8 @@
+package com.aeox.jkaiser.engine;
+
+import org.elasticsearch.common.inject.Singleton;
+
+@Singleton
+public class JobEngine {
+
+}

@@ -1,0 +1,12 @@
+package com.aeox.jkaiser.exception;
+
+import lombok.AllArgsConstructor;
+
+@Data
+@AllArgsConstructor
+public class KaiserException extends Exception {
+	private static final long serialVersionUID = -2177918427795427718L;
+	
+	private String msg;
+	private int httpCode;
+}

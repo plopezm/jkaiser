@@ -1,0 +1,44 @@
+package com.aeox.jkaiser.plugins.http;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.aeox.jkaiser.core.JobContext;
+import com.aeox.jkaiser.core.ParameterType;
+import com.aeox.jkaiser.core.Result;
+import com.aeox.jkaiser.core.Task;
+import com.aeox.jkaiser.core.exception.KaiserException;
+
+public class HttpTask extends Task{
+
+	@Override
+	public String getName() {
+		return "jkaiser-http";
+	}
+
+	@Override
+	public String getVersion() {
+		return "1.0";
+	}
+
+	@Override
+	public String getDescription() {
+		return "Performs http requests";
+	}
+
+	@Override
+	public Map<String, ParameterType> getRequiredParameters() {
+		final Map<String, ParameterType> params = new HashMap<>();
+		params.put("url", ParameterType.STRING);
+		params.put("method", ParameterType.STRING);
+		params.put("body", ParameterType.STRING);
+		return params;
+	}
+
+	@Override
+	public Result onCall(JobContext context) throws KaiserException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

@@ -1,0 +1,5 @@
+package com.aeox.jkaiser.loader;
+
+public class ExtensionLoader<C> {
+
+}

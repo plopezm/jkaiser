@@ -1,0 +1,8 @@
+package com.aeox.jkaiser.dto;
+
+public class Task {
+
+	private String name;
+	private String description;
+	
+}

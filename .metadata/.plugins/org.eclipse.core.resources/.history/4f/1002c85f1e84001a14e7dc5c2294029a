@@ -1,0 +1,25 @@
+package com.aeox.jkaiser.dto;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import lombok.Data;
+
+@Data
+public abstract class Job {
+	private String name;
+	private String version;
+	private TaskTreeNode entrypoint;
+	private Status status;
+	
+	public <P,R> List<Result<R>> run(final JobContext<P> context) {
+		final List<Result<R>> results = new LinkedList<>();
+		
+		Task<?,?> taskToExecute = this.entrypoint.getTaskId();	
+		while(taskToExecute != null) {
+			final Result<R> result = taskToExecute.run(context);
+		}
+		
+		return null;		
+	}
+}

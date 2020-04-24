@@ -1,0 +1,6 @@
+package com.aeox.jkaiser.dto;
+
+public abstract class Job {
+
+	
+}
