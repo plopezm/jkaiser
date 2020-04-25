@@ -1,6 +1,8 @@
 package com.aeox.jkaiser.core;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.aeox.jkaiser.core.exception.KaiserException;
@@ -32,21 +34,23 @@ public abstract class Task<R> {
 	
 	public abstract Result<R> onCall(final JobContext context) throws KaiserException;
 	
-	public boolean checkParameters(final JobContext context) {
+	public List<String> checkParameters(final JobContext context) {
+		List<String> errors = new LinkedList<>();
 		for (String paramKey : this.getRequiredParameters().keySet()) {
-			if (!this.getRequiredParameters().containsKey(paramKey)) {
-				return false;
+			if (!context.containsParameter(paramKey)) {
+				errors.add(paramKey);
 			}
 		}
-		return true;
+		return errors;
 	}
 	
 	public Result<?> run(final JobContext context) {
 		Result<?> result;
 		try {
 			context.applyMappings(this.mappings);
-			if (!checkParameters(context)) {
-				throw new ParameterNotFoundException();
+			List<String> parametersErrorList = checkParameters(context);
+			if (!parametersErrorList.isEmpty()) {
+				throw new ParameterNotFoundException(parametersErrorList);
 			}
 			result = this.onCall(context);
 		} catch (KaiserException e) {

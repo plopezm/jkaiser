@@ -29,13 +29,13 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Service
-public class TaskLoader {
+public class TaskClassLoader {
 
 	public static final String pluginsFolder = "./plugins";
 	
 	private Map<String, Class<? extends Task<?>>> taskClasses;
 
-	public TaskLoader() {
+	public TaskClassLoader() {
 		final File file = new File(pluginsFolder);
 		file.mkdir();
 		taskClasses = new ConcurrentHashMap<>();

@@ -1,5 +1,6 @@
 package com.aeox.jkaiser.core;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -7,18 +8,29 @@ import java.util.Map;
 import com.aeox.jkaiser.core.exception.ParameterNotFoundException;
 
 import lombok.Data;
+import lombok.Setter;
 
 @Data
-public abstract class Job {
+public class Job {
 	private String name;
 	private String version;
 	private TaskTreeNode entrypoint;
 	private Status status;
+	@Setter
 	private Map<String, String> parameters;
 	
+	public Job(String name, String version, TaskTreeNode entrypoint) {
+		super();
+		this.name = name;
+		this.version = version;
+		this.entrypoint = entrypoint;
+		this.parameters = new HashMap<>();
+	}
+	
 	public List<Result<?>> run(final JobContext context) throws ParameterNotFoundException {
-		if (!checkParameters(context)) {
-			throw new ParameterNotFoundException();
+		List<String> parametersErrorList = this.checkParameters(context);
+		if (!parametersErrorList.isEmpty()) {
+			throw new ParameterNotFoundException(parametersErrorList);
 		}
 		
 		final List<Result<?>> results = new LinkedList<>();
@@ -36,12 +48,13 @@ public abstract class Job {
 		return results;		
 	}
 	
-	private boolean checkParameters(final JobContext context) {
+	private List<String> checkParameters(final JobContext context) {
+		List<String> errors = new LinkedList<String>();
 		for(final String param : this.parameters.keySet()) {
 			if (!context.containsParameter(param)) {
-				return false;
+				errors.add(param);
 			}
 		}
-		return true;
+		return errors;
 	}
 }

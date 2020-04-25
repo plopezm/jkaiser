@@ -7,4 +7,10 @@ public class TaskTreeNode {
 	private Task<?> current;
 	private TaskTreeNode onSuccess;
 	private TaskTreeNode onFailure;
+	
+	public TaskTreeNode(Task<?> current) {
+		super();
+		this.current = current;
+	}
+	
 }

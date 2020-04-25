@@ -1,8 +1,8 @@
 package com.aeox.jkaiser.core;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -16,7 +16,7 @@ public class JobContext {
 	private Result<?> previousResult;
 	
 	public JobContext() {
-		this.params = new ConcurrentHashMap<>();
+		this.params = new HashMap<>();
 	}
 	
 	public Set<String> getKeys() {

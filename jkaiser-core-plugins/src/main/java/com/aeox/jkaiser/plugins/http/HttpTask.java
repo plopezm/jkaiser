@@ -15,8 +15,10 @@ import com.aeox.jkaiser.core.ParameterType;
 import com.aeox.jkaiser.core.Result;
 import com.aeox.jkaiser.core.Task;
 import com.aeox.jkaiser.core.exception.KaiserException;
+import com.aeox.jkaiser.core.result.HttpContent;
+import com.aeox.jkaiser.core.result.HttpResponseResult;
 
-public class HttpTask extends Task<HttpResponse<String>>{
+public class HttpTask extends Task<HttpContent>{
 
 	@Override
 	public String getName() {
@@ -36,7 +38,6 @@ public class HttpTask extends Task<HttpResponse<String>>{
 	@Override
 	public Map<String, ParameterType> getRequiredParameters() {
 		final Map<String, ParameterType> params = new HashMap<>();
-		params.put("headers", ParameterType.MAP);
 		params.put("url", ParameterType.STRING);
 		params.put("method", ParameterType.STRING);
 		params.put("body", ParameterType.STRING);
@@ -45,7 +46,7 @@ public class HttpTask extends Task<HttpResponse<String>>{
 	}
 
 	@Override
-	public Result<HttpResponse<String>> onCall(JobContext context) throws KaiserException {
+	public Result<HttpContent> onCall(JobContext context) throws KaiserException {
 		HttpClient client = HttpClient.newHttpClient();
 				
 	    HttpRequest request = HttpRequest.newBuilder()
@@ -54,25 +55,15 @@ public class HttpTask extends Task<HttpResponse<String>>{
 	          .build();
 
 	    try {
-			final HttpResponse<String> response =
-			      client.send(request, BodyHandlers.ofString());
+			final HttpResponse<byte[]> response =
+			      client.send(request, BodyHandlers.ofByteArray());
 			
 			final Integer expectedResponseCode = (Integer) context.getParameter("expectedResponseCode");
 			if (expectedResponseCode != response.statusCode()) {
-				throw new KaiserException("Received code was " + response.statusCode() + " buy expected code is " + expectedResponseCode, 400);
+				throw new KaiserException("Received code was " + response.statusCode() + " but expected code is " + expectedResponseCode, 400);
 			}
 			
-			return new Result<HttpResponse<String>>() {			
-				@Override
-				public boolean wasError() {
-					return false;
-				}
-				
-				@Override
-				public HttpResponse<String> getResult() {
-					return response;
-				}
-			};
+			return new HttpResponseResult(response);
 		} catch (IOException | InterruptedException e) {
 			throw new KaiserException(e.getMessage(), 400);
 		}
