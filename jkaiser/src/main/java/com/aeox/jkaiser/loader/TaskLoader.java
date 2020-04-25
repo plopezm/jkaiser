@@ -33,12 +33,12 @@ public class TaskLoader {
 
 	public static final String pluginsFolder = "./plugins";
 	
-	private Map<String, Task<?>> tasks;
+	private Map<String, Class<? extends Task<?>>> taskClasses;
 
 	public TaskLoader() {
 		final File file = new File(pluginsFolder);
 		file.mkdir();
-		tasks = new ConcurrentHashMap<String, Task<?>>();
+		taskClasses = new ConcurrentHashMap<>();
 	}
 
 	@Scheduled(initialDelay = 0, fixedDelay = 60000)
@@ -48,11 +48,18 @@ public class TaskLoader {
 		paths.forEach((jarFile) -> {
 			log.info("Checking jar {}", jarFile);
 			try {
-				this.loadPlugin(jarFile).forEach((task) -> {
-					final String taskName = task.getName()+":"+task.getVersion(); 				
-					if (!this.tasks.containsKey(taskName)) {
-						this.tasks.put(taskName, task);
-					}					
+				this.loadPlugin(jarFile).forEach((taskClass) -> {
+					Task<?> taskInstance;
+					try {
+						taskInstance = taskClass.getDeclaredConstructor().newInstance();
+						final String taskName = taskInstance.getName()+":"+taskInstance.getVersion(); 				
+						this.taskClasses.put(taskName, taskClass);
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+							| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+						log.error("Class {} has not a default constructor and it is mandatory", taskClass.getName());
+						e.printStackTrace();
+					}
+							
 				});
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException | IOException e) {
@@ -75,9 +82,9 @@ public class TaskLoader {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Task<?>> loadPlugin(final File file) throws IOException, InstantiationException, IllegalAccessException,
+	private List<Class<? extends Task<?>>> loadPlugin(final File file) throws IOException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		final List<Task<?>> pluginTasks = new LinkedList<>();
+		final List<Class<? extends Task<?>>> pluginTasks = new LinkedList<>();
 		try (final JarFile jarFile = new JarFile(file)) {
 			final ClassLoader loader = URLClassLoader.newInstance(new URL[] { file.toURI().toURL() },
 					getClass().getClassLoader());
@@ -109,7 +116,7 @@ public class TaskLoader {
 						continue;
 					}
 
-					pluginTasks.add(cls.getDeclaredConstructor().newInstance());
+					pluginTasks.add(cls);
 					log.info("Added class: {}", className);
 				}
 			}
@@ -118,7 +125,7 @@ public class TaskLoader {
 	}
 	
 	
-	public Task<?> findTask(String id) {
-		return this.tasks.get(id);
+	public Class<? extends Task<?>> findTaskClass(String id) {
+		return this.taskClasses.get(id);
 	}
 }
