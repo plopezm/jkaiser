@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.aeox.jkaiser.core.JobContext;
+import com.aeox.jkaiser.core.ParameterMappings;
 import com.aeox.jkaiser.core.ParameterType;
 import com.aeox.jkaiser.core.Result;
 import com.aeox.jkaiser.core.Task;
@@ -13,14 +14,22 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class LoggerTask extends Task<String>{
 	
+	public LoggerTask() {
+		super();
+	}
+	
+	public LoggerTask(ParameterMappings mappings) {
+		super(mappings);
+	}
+	
 	@Override
 	public Result<String> onCall(JobContext context) throws KaiserException {
-		context.getKeys().forEach((key) -> log.info("Key {} - Value {}", key, context.getParameter(key)));
+		log.info("Logger -> {}", context.getParameter("msg"));
 		return new Result<String>() {
 
 			@Override
 			public String getResult() {
-				return context.getKeys().stream().map((key) -> key + ":" + context.getParameter(key)).toString();
+				return (String) context.getParameter("msg").toString();
 			}
 
 			@Override

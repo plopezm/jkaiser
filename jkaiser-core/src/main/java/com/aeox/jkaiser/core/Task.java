@@ -20,7 +20,7 @@ public abstract class Task<R> {
 		this.mappings = new HashMap<>();
 	}
 	
-	public Task(final Map<String, String> mappings) {
+	public Task(final ParameterMappings mappings) {
 		this.mappings = mappings;
 	}
 	

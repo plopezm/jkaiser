@@ -11,6 +11,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 public class JobContext {
 	private static final SpelExpressionParser parser = new SpelExpressionParser();
+	private static final String PREV_RESULT = "$result.";
 	
 	private Map<String, Object> params;
 	private Result<?> previousResult;
@@ -45,8 +46,8 @@ public class JobContext {
 	
 	public void applyMappings(final Map<String, String> mappings) {
 		mappings.forEach((key, value) -> {
-			if (value.startsWith("$")) {
-				this.params.put(key, this.getValue(value, this.previousResult));
+			if (value.startsWith(PREV_RESULT)) {
+				this.params.put(key, this.getValue(value.substring(PREV_RESULT.length()), this.previousResult.getResult()));
 			} else {
 				this.params.put(key, value);
 			}

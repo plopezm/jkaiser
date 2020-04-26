@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.aeox.jkaiser.core.JobContext;
+import com.aeox.jkaiser.core.ParameterMappings;
 import com.aeox.jkaiser.core.ParameterType;
 import com.aeox.jkaiser.core.Result;
 import com.aeox.jkaiser.core.Task;
@@ -19,6 +20,14 @@ import com.aeox.jkaiser.core.result.HttpContent;
 import com.aeox.jkaiser.core.result.HttpResponseResult;
 
 public class HttpTask extends Task<HttpContent>{
+	
+	public HttpTask() {
+		super();
+	}
+	
+	public HttpTask(ParameterMappings mappings) {
+		super(mappings);
+	}
 
 	@Override
 	public String getName() {
