@@ -41,7 +41,7 @@ public class TaskClassLoader {
 		taskClasses = new ConcurrentHashMap<>();
 	}
 
-	@Scheduled(initialDelay = 0, fixedDelay = 60000)
+	@Scheduled(initialDelay = 0, fixedDelay = 180000)
 	public void loadTasks() throws IOException {
 		log.info("Loading new jars from folder...");
 		final List<File> paths = this.getJarPlugins();
@@ -88,7 +88,7 @@ public class TaskClassLoader {
 		try (final JarFile jarFile = new JarFile(file)) {
 			final ClassLoader loader = URLClassLoader.newInstance(new URL[] { file.toURI().toURL() },
 					getClass().getClassLoader());
-
+			
 			final Enumeration<JarEntry> allEntries = jarFile.entries();
 			while (allEntries.hasMoreElements()) {
 				JarEntry entry = (JarEntry) allEntries.nextElement();
@@ -99,7 +99,7 @@ public class TaskClassLoader {
 
 					try {
 						cls = (Class<? extends Task<?>>) Class.forName(className, true, loader);						
-					} catch (ClassNotFoundException | ClassCastException e) {
+					} catch (ClassNotFoundException | ClassCastException | NoClassDefFoundError e) {
 						continue;
 					}
 
@@ -117,13 +117,12 @@ public class TaskClassLoader {
 					}
 
 					pluginTasks.add(cls);
-					log.info("Added class: {}", className);
+					log.info("Task class added: {}", className);
 				}
 			}
 		}
 		return pluginTasks;
 	}
-	
 	
 	public Class<? extends Task<?>> findTaskClass(String id) {
 		return this.taskClasses.get(id);

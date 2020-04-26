@@ -112,5 +112,22 @@ class JobEngineTest {
 		assertFalse(results.get(0).wasError());
 		assertFalse(results.get(1).wasError());
 	}
+	
+	@Test
+	void testJdbcTask() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ParameterNotFoundException {		
+		Task<?> jdbcTask = loader.findTaskClass("jkaiser-postgres:1.0").getDeclaredConstructor().newInstance();	
+
+		TaskTreeNode entrypoint = new TaskTreeNode(jdbcTask);
+		
+		final Job testJob = new Job("testjob", "1.0", entrypoint);		
+		final JobContext jobContext = new JobContext();		
+		
+		List<Result<?>> results = engine.run(jobContext, testJob);
+
+		results.forEach((result) -> {
+			log.info("Result: {}", result.getResult());
+		});
+		//assertFalse(results.get(0).wasError());
+	}
 
 }
