@@ -59,5 +59,10 @@ public class LoggerTask extends Task<String>{
 		final Map<String, ParameterType> params = new HashMap<>();
 		params.put("msg", ParameterType.STRING);
 		return params;
+	}
+
+	@Override
+	public Map<String, ParameterType> getOptionalParameters() {
+		return new HashMap<>();
 	}	
 }

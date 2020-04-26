@@ -32,6 +32,8 @@ public abstract class Task<R> {
 	
 	public abstract Map<String, ParameterType> getRequiredParameters(); 
 	
+	public abstract Map<String, ParameterType> getOptionalParameters(); 
+	
 	public abstract Result<R> onCall(final JobContext context) throws KaiserException;
 	
 	public List<String> checkParameters(final JobContext context) {

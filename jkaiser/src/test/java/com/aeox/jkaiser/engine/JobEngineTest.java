@@ -102,9 +102,7 @@ class JobEngineTest {
 		final Job testJob = new Job("testjob", "1.0", entrypoint);		
 		final JobContext jobContext = new JobContext();
 		jobContext.addParameter("url", "https://postman-echo.com/get?foo1=bar1&foo2=bar2");
-		jobContext.addParameter("method", "get");
-		jobContext.addParameter("expectedResponseCode", 200);
-		jobContext.addParameter("body", "");				
+		jobContext.addParameter("method", "get");				
 		
 		List<Result<?>> results = engine.run(jobContext, testJob);
 
