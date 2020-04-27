@@ -10,6 +10,9 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,29 +98,33 @@ public class TaskClassLoader {
 				String name = entry.getName();
 				if (!entry.isDirectory() && name.endsWith(".class")) {
 					final String className = name.substring(0, name.lastIndexOf('.')).replace('/', '.');
-					Class<? extends Task<?>> cls;
-
+					Class<?> cls;
 					try {
-						cls = (Class<? extends Task<?>>) Class.forName(className, true, loader);						
+						cls = Class.forName(className, true, loader);						
 					} catch (ClassNotFoundException | ClassCastException | NoClassDefFoundError e) {
 						continue;
 					}
 
-					if ((cls.getModifiers() & Modifier.ABSTRACT) != 0) { // Only instanciable classes
+					if (this.isDriverClass(cls)) {
+						try {
+							loader.loadClass(className);
+						} catch (ClassNotFoundException e1) {
+							e1.printStackTrace();
+						}
+						Driver driver = (Driver) cls.getDeclaredConstructor().newInstance();
+						try {
+							DriverManager.registerDriver(new DriverShim(driver));
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+						log.info("Driver {} has been added to DriverManager", driver.getClass().getName());
 						continue;
+					}					
+					
+					if (this.isTaskClass(cls)) {
+						pluginTasks.add((Class<? extends Task<?>>) cls);
+						log.info("Task class added: {}", className);
 					}
-
-					if (!Task.class.isAssignableFrom(cls)) {
-						continue;
-					}
-
-					final Constructor<? extends Task<?>> defaultConstructor = cls.getDeclaredConstructor();
-					if (defaultConstructor == null) {
-						continue;
-					}
-
-					pluginTasks.add(cls);
-					log.info("Task class added: {}", className);
 				}
 			}
 		}
@@ -126,5 +133,32 @@ public class TaskClassLoader {
 	
 	public Class<? extends Task<?>> findTaskClass(String id) {
 		return this.taskClasses.get(id);
+	}
+	
+	public boolean isDriverClass(final Class<?> cls) throws NoSuchMethodException, SecurityException {
+		if ((cls.getModifiers() & Modifier.ABSTRACT) != 0) { // Only instanciable classes
+			return false;
+		}
+
+		if (!Driver.class.isAssignableFrom(cls)) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean isTaskClass(final Class<?> cls) throws NoSuchMethodException, SecurityException {
+		if ((cls.getModifiers() & Modifier.ABSTRACT) != 0) { // Only instanciable classes
+			return false;
+		}
+
+		if (!Task.class.isAssignableFrom(cls)) {
+			return false;
+		}
+
+		final Constructor<?> defaultConstructor = (Constructor<?>) cls.getDeclaredConstructor();
+		if (defaultConstructor == null) {
+			return false;
+		}
+		return true;
 	}
 }

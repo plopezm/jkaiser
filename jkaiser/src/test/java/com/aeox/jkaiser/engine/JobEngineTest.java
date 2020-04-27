@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -115,19 +116,29 @@ class JobEngineTest {
 	
 	@Test
 	void testJdbcTask() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ParameterNotFoundException {		
-		Task<?> jdbcTask = loader.findTaskClass("jkaiser-postgres:1.0").getDeclaredConstructor().newInstance();	
+		Task<?> jdbcTask = loader.findTaskClass("jkaiser-jdbc-insert:1.0").getDeclaredConstructor().newInstance();	
 
 		TaskTreeNode entrypoint = new TaskTreeNode(jdbcTask);
 		
 		final Job testJob = new Job("testjob", "1.0", entrypoint);		
-		final JobContext jobContext = new JobContext();		
+		final JobContext jobContext = new JobContext();	
+		jobContext.addParameter("dburl", "jdbc:postgresql://localhost:5432/kaiserdb");
+		jobContext.addParameter("dbusr", "postgres");
+		jobContext.addParameter("dbpasswd", "postgres");
+		jobContext.addParameter("sqlquery", "INSERT INTO tasks (name, version, created_at, script) values (?, ?, NOW(), ?)");
+		
+		final List<Object> parameters = new LinkedList<>();
+		parameters.add("example_task1");
+		parameters.add("1.0");
+		parameters.add("log.info('hello')");
+		jobContext.addParameter("sqlparams", parameters);
 		
 		List<Result<?>> results = engine.run(jobContext, testJob);
 
 		results.forEach((result) -> {
 			log.info("Result: {}", result.getResult());
 		});
-		//assertFalse(results.get(0).wasError());
+		assertFalse(results.get(0).wasError());
 	}
 
 }
