@@ -9,7 +9,6 @@ import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.aeox.jkaiser.core.JobContext;
@@ -64,6 +63,7 @@ public class HttpTask extends Task<HttpContent>{
 		return params;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result<HttpContent> onCall(JobContext context) throws KaiserException {
 		final String body = context.getParameter("body") != null ? (String) context.getParameter("body") : "";
