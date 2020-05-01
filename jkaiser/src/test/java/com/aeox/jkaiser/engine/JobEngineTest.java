@@ -125,7 +125,7 @@ class JobEngineTest {
 		jobContext.addParameter("dburl", "jdbc:postgresql://localhost:5432/kaiserdb");
 		jobContext.addParameter("dbusr", "postgres");
 		jobContext.addParameter("dbpasswd", "postgres");
-		jobContext.addParameter("sqlquery", "INSERT INTO tasks (name, version, created_at, script) values (?, ?, NOW(), ?)");
+		jobContext.addParameter("sqlquery", "INSERT INTO tasks (name, version, created_at, script) values (?, ?, NOW(), ?) RETURNING name, version, created_at, script");
 		
 		final List<Object> parameters = new LinkedList<>();
 		parameters.add("example_task1");

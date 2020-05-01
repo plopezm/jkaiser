@@ -3,8 +3,11 @@ package com.aeox.jkaiser.plugins.dml;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,11 +17,11 @@ import com.aeox.jkaiser.core.Result;
 import com.aeox.jkaiser.core.Task;
 import com.aeox.jkaiser.core.exception.KaiserException;
 
-public class InsertIntoTask extends Task<String> {
+public class JdbcDmlTask extends Task<List<Map<String, Object>>> {
 
 	@Override
 	public String getName() {
-		return "jkaiser-jdbc-insert";
+		return "jkaiser-jdbc-dml";
 	}
 
 	@Override
@@ -28,7 +31,7 @@ public class InsertIntoTask extends Task<String> {
 
 	@Override
 	public String getDescription() {
-		return "This task is used to insert data in a postgres database";
+		return "This task is used to insert/update/select/delete data in a database. A JDBC driver is required in plugins folder to make it work. The driver will depend on the database used.";
 	}
 
 	@Override
@@ -47,7 +50,7 @@ public class InsertIntoTask extends Task<String> {
 	}
 
 	@Override
-	public Result<String> onCall(JobContext context) throws KaiserException {
+	public Result<List<Map<String, Object>>> onCall(JobContext context) throws KaiserException {
 		try {
 			try (final Connection conn = this.getConnection((String) context.getParameter("dburl"), 
 					(String) context.getParameter("dbusr"),
@@ -61,21 +64,29 @@ public class InsertIntoTask extends Task<String> {
 						}					
 						this.addParameters(pstmt, (List<?>) paramsObject);
 					}
-					pstmt.execute();					
-					final boolean wasError = pstmt.getUpdateCount() < 1;
 					
-					return new Result<String>() {
-
+					pstmt.execute();
+					final List<Map<String, Object>> results = new LinkedList<>();
+					
+					ResultSet rs = pstmt.getResultSet();
+					if (rs == null) {							
+						rs = pstmt.getGeneratedKeys();							
+					} 
+					while(rs.next()) {
+						results.add(map(rs));
+					}
+					rs.close();					
+					
+					return new Result<List<Map<String, Object>>>() {
 						@Override
-						public String getResult() {
-							return "Performed query: "+ query;
+						public List<Map<String, Object>> getResult() {
+							return results;
 						}
 
 						@Override
 						public boolean wasError() {
-							return wasError;
-						}
-						
+							return results.size() == 0;
+						}							
 					};
 				}				
 			}			
@@ -92,6 +103,15 @@ public class InsertIntoTask extends Task<String> {
 		for (int i=0;i<params.size();i++) {
 			pstmt.setObject(i+1, params.get(i));
 		}
+	}
+	
+	private Map<String, Object> map(final ResultSet rs) throws SQLException {
+	    Map<String, Object> result = new HashMap<String, Object>();
+	    final ResultSetMetaData rsmd = rs.getMetaData();	    
+	    for (int i = 0;i<rsmd.getColumnCount();i++) {
+	    	result.put(rsmd.getColumnName(i+1), rs.getObject(i+1));
+	    }	    
+	    return result;
 	}
 
 }
