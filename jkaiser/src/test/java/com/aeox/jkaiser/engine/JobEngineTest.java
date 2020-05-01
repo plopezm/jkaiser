@@ -121,7 +121,7 @@ class JobEngineTest {
 		Task<?> jdbcInsertTask = loader.findTaskClass("jkaiser-jdbc-dml:1.0").getDeclaredConstructor().newInstance();
 		
 		final List<Object> postInsertParameters = new LinkedList<>();
-		postInsertParameters.add("example_task1");	
+		postInsertParameters.add("$result.[0]['name']");	
 		final ParameterMappings postInsertParameterMappings = new ParameterMappings();	
 		postInsertParameterMappings.put("sqlparams", postInsertParameters);			
 						
@@ -160,7 +160,7 @@ class JobEngineTest {
 		});
 		assertFalse(results.get(0).wasError());
 		assertFalse(results.get(1).wasError());
-		assertTrue(results.get(2).wasError());
+		assertFalse(results.get(2).wasError());
 	}
 
 }
