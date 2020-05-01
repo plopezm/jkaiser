@@ -14,7 +14,7 @@ import lombok.Data;
 @Data
 public abstract class Task<R> {
 	
-	private Map<String, String> mappings;
+	private Map<String, Object> mappings;
 	
 	public Task() {
 		this.mappings = new HashMap<>();

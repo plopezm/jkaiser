@@ -115,10 +115,28 @@ class JobEngineTest {
 	}
 	
 	@Test
-	void testJdbcTask() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ParameterNotFoundException {		
-		Task<?> jdbcTask = loader.findTaskClass("jkaiser-jdbc-insert:1.0").getDeclaredConstructor().newInstance();	
+	void testJdbcTaskWithInsertSelectAndDeleteStatement() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ParameterNotFoundException {		
+		Task<?> jdbcInsertTask = loader.findTaskClass("jkaiser-jdbc-dml:1.0").getDeclaredConstructor().newInstance();
+		
+		final List<Object> postInsertParameters = new LinkedList<>();
+		postInsertParameters.add("example_task1");	
+		final ParameterMappings postInsertParameterMappings = new ParameterMappings();	
+		postInsertParameterMappings.put("sqlparams", postInsertParameters);			
+						
+		postInsertParameterMappings.put("sqlquery", "SELECT * FROM tasks WHERE name = ?");	
+		Task<?> jdbcSelectTask = loader.findTaskClass("jkaiser-jdbc-dml:1.0").getDeclaredConstructor(ParameterMappings.class).newInstance(postInsertParameterMappings.clone());
 
-		TaskTreeNode entrypoint = new TaskTreeNode(jdbcTask);
+		postInsertParameterMappings.put("sqlquery", "DELETE FROM tasks WHERE name = ?");	
+		Task<?> jdbcDeleteTask = loader.findTaskClass("jkaiser-jdbc-dml:1.0").getDeclaredConstructor(ParameterMappings.class).newInstance(postInsertParameterMappings);
+		
+		TaskTreeNode entrypoint = new TaskTreeNode(jdbcInsertTask);
+		TaskTreeNode onEntryOK = new TaskTreeNode(jdbcSelectTask);
+		TaskTreeNode onFinished = new TaskTreeNode(jdbcDeleteTask);
+				
+		entrypoint.setOnSuccess(onEntryOK);
+		onEntryOK.setOnSuccess(onFinished);
+		onEntryOK.setOnFailure(onFinished);
+		
 		
 		final Job testJob = new Job("testjob", "1.0", entrypoint);		
 		final JobContext jobContext = new JobContext();	
@@ -139,6 +157,8 @@ class JobEngineTest {
 			log.info("Result: {}", result.getResult());
 		});
 		assertFalse(results.get(0).wasError());
+		assertFalse(results.get(1).wasError());
+		assertFalse(results.get(2).wasError());
 	}
 
 }

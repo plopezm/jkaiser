@@ -12,12 +12,21 @@ import java.util.List;
 import java.util.Map;
 
 import com.aeox.jkaiser.core.JobContext;
+import com.aeox.jkaiser.core.ParameterMappings;
 import com.aeox.jkaiser.core.ParameterType;
 import com.aeox.jkaiser.core.Result;
 import com.aeox.jkaiser.core.Task;
 import com.aeox.jkaiser.core.exception.KaiserException;
 
 public class JdbcDmlTask extends Task<List<Map<String, Object>>> {
+	
+	public JdbcDmlTask() {
+		super();
+	}
+	
+	public JdbcDmlTask(final ParameterMappings mappings) {
+		super(mappings);
+	}
 
 	@Override
 	public String getName() {

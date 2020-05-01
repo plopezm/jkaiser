@@ -44,10 +44,14 @@ public class JobContext {
 		this.previousResult = previousResult;
 	}
 	
-	public void applyMappings(final Map<String, String> mappings) {
+	public void applyMappings(final Map<String, Object> mappings) {
 		mappings.forEach((key, value) -> {
-			if (value.startsWith(PREV_RESULT)) {
-				this.params.put(key, this.getValue(value.substring(PREV_RESULT.length()), this.previousResult.getResult()));
+			String strValue = null;
+			if (value instanceof String) {
+				strValue = (String) value;
+			}
+			if (strValue != null && strValue.startsWith(PREV_RESULT)) {
+				this.params.put(key, this.getValue(strValue.substring(PREV_RESULT.length()), this.previousResult.getResult()));
 			} else {
 				this.params.put(key, value);
 			}
