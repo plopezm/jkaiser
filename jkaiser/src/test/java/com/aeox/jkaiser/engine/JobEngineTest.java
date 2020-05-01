@@ -1,6 +1,7 @@
 package com.aeox.jkaiser.engine;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
@@ -112,6 +113,7 @@ class JobEngineTest {
 		});
 		assertFalse(results.get(0).wasError());
 		assertFalse(results.get(1).wasError());
+		assertNotEquals("$result.new String(body)", results.get(1).getResult());
 	}
 	
 	@Test
@@ -158,7 +160,7 @@ class JobEngineTest {
 		});
 		assertFalse(results.get(0).wasError());
 		assertFalse(results.get(1).wasError());
-		assertFalse(results.get(2).wasError());
+		assertTrue(results.get(2).wasError());
 	}
 
 }
