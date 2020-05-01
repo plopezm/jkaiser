@@ -72,31 +72,8 @@ public class JdbcDmlTask extends Task<List<Map<String, Object>>> {
 							throw new KaiserException("Invalid list of parameters 'sqlparams'", 400);
 						}					
 						this.addParameters(pstmt, (List<?>) paramsObject);
-					}
-					
-					pstmt.execute();
-					final List<Map<String, Object>> results = new LinkedList<>();
-					
-					ResultSet rs = pstmt.getResultSet();
-					if (rs == null) {							
-						rs = pstmt.getGeneratedKeys();							
-					} 
-					while(rs.next()) {
-						results.add(map(rs));
-					}
-					rs.close();					
-					
-					return new Result<List<Map<String, Object>>>() {
-						@Override
-						public List<Map<String, Object>> getResult() {
-							return results;
-						}
-
-						@Override
-						public boolean wasError() {
-							return results.size() == 0;
-						}							
-					};
+					}					
+					return this.performAction(pstmt);					
 				}				
 			}			
 		} catch (SQLException e) {
@@ -122,5 +99,31 @@ public class JdbcDmlTask extends Task<List<Map<String, Object>>> {
 	    }	    
 	    return result;
 	}
+	
+	private Result<List<Map<String, Object>>> performAction(final PreparedStatement pstmt) throws SQLException {
+		pstmt.execute();
+		final List<Map<String, Object>> results = new LinkedList<>();
+		
+		ResultSet rs = pstmt.getResultSet();
+		if (rs == null) {							
+			rs = pstmt.getGeneratedKeys();							
+		} 
+		while(rs.next()) {
+			results.add(map(rs));
+		}
+		rs.close();					
+		
+		return new Result<List<Map<String, Object>>>() {
+			@Override
+			public List<Map<String, Object>> getResult() {
+				return results;
+			}
 
+			@Override
+			public boolean wasError() {
+				return results.size() == 0; 
+			}							
+		};
+	}
+	
 }
