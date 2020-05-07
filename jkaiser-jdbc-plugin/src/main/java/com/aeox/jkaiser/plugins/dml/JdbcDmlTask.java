@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,15 +73,20 @@ public class JdbcDmlTask extends Task<List<Map<String, Object>>> {
 							throw new KaiserException("Invalid list of parameters 'sqlparams'", 400);
 						}					
 						this.addParameters(pstmt, (List<?>) paramsObject);
-					}					
-					return this.performAction(pstmt);					
+					}		
+					
+					if (query.toLowerCase().startsWith("select")) {
+						return this.performSelect(pstmt);						
+					} else {
+						return this.performModification(pstmt);
+					}
 				}				
 			}			
 		} catch (SQLException e) {
 			throw new KaiserException("Exception message: " + e.getMessage(), 400);
 		}
 	}
-	
+
 	private Connection getConnection(final String url, final String username, final String password) throws SQLException {
 		return DriverManager.getConnection(url, username, password);
 	}
@@ -100,10 +106,9 @@ public class JdbcDmlTask extends Task<List<Map<String, Object>>> {
 	    return result;
 	}
 	
-	private Result<List<Map<String, Object>>> performAction(final PreparedStatement pstmt) throws SQLException {
+	private Result<List<Map<String, Object>>> performSelect(final PreparedStatement pstmt) throws SQLException {
 		pstmt.execute();
-		final List<Map<String, Object>> results = new LinkedList<>();
-		
+		final List<Map<String, Object>> results = new LinkedList<>();		
 		ResultSet rs = pstmt.getResultSet();
 		if (rs == null) {							
 			rs = pstmt.getGeneratedKeys();							
@@ -111,8 +116,7 @@ public class JdbcDmlTask extends Task<List<Map<String, Object>>> {
 		while(rs.next()) {
 			results.add(map(rs));
 		}
-		rs.close();					
-		
+		rs.close();		
 		return new Result<List<Map<String, Object>>>() {
 			@Override
 			public List<Map<String, Object>> getResult() {
@@ -122,6 +126,22 @@ public class JdbcDmlTask extends Task<List<Map<String, Object>>> {
 			@Override
 			public boolean wasError() {
 				return results.size() == 0; 
+			}							
+		};
+	}
+	
+	private Result<List<Map<String, Object>>> performModification(final PreparedStatement pstmt) throws SQLException {
+		final int result = pstmt.executeUpdate();
+			
+		return new Result<List<Map<String, Object>>>() {
+			@Override
+			public List<Map<String, Object>> getResult() {
+				return new ArrayList<>();
+			}
+
+			@Override
+			public boolean wasError() {
+				return result < 1; 
 			}							
 		};
 	}

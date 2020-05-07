@@ -14,8 +14,10 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 public class JobContext {
 	private static final SpelExpressionParser parser = new SpelExpressionParser();
+	private static final String PARAMS = "$params.";
 	private static final String PREV_RESULT = "$result.";
 	
+	private String jobName;
 	private Map<String, Object> params;
 	private Result<?> previousResult;
 	
@@ -47,6 +49,14 @@ public class JobContext {
 		this.previousResult = previousResult;
 	}
 	
+	public String getJobName() {
+		return jobName;
+	}
+
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
+
 	public void applyMappings(final Map<String, Object> mappings) {
 		mappings.forEach((key, value) -> {
 			this.params.put(key, mapValues(value));
@@ -59,7 +69,7 @@ public class JobContext {
 			
 		}
 		if (target instanceof String) {
-			return this.getValue((String) target, this.previousResult.getResult());
+			return this.getValue((String) target);
 		} else if (target instanceof List<?>) {
 			List<?> listTarget = (List<?>) target;
 			return listTarget.stream().map((item) -> {
@@ -68,24 +78,33 @@ public class JobContext {
 		} else if (target instanceof Map<?,?>) {
 			Map<?, ?> mapTarget = (Map<?, ?>) target;
 			return mapTarget.entrySet().stream().map((entry) -> {
-				return new DefaultMapEntry<Object, Object>(entry.getKey(), this.getValue((String) target, this.previousResult.getResult()));
+				return new DefaultMapEntry<Object, Object>(entry.getKey(), this.getValue((String) target));
 			}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		}
 		return target;
 	}
 	
-	private Object getValue(String exp, Object target) {
+	private Object getValue(final String exp) {
 		String strValue = null;
 		if (exp instanceof String) {
 			strValue = (String) exp;
+		}
+		if (strValue == null) {
+			return exp;
 		}		
-		if (strValue != null && strValue.startsWith(PREV_RESULT)) {			
-			final EvaluationContext context = new StandardEvaluationContext(target);
-			final Expression expResult = parser.parseExpression(strValue.substring(PREV_RESULT.length()));
-			return expResult.getValue(context);
+		
+		EvaluationContext context;
+		if (strValue.startsWith(PREV_RESULT)) {
+			strValue = strValue.substring(PREV_RESULT.length());
+			context = new StandardEvaluationContext(this.previousResult.getResult());
+		} else if (strValue.startsWith(PARAMS)) {
+			strValue = strValue.substring(PARAMS.length());
+			context = new StandardEvaluationContext(this.params);
 		} else {
 			return exp;
-		}
+		}		
+		final Expression expResult = parser.parseExpression(strValue);
+		return expResult.getValue(context);
 	}
 	
 	private boolean isPrimitive(final Object obj) {

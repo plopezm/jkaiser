@@ -121,7 +121,7 @@ class JobEngineTest {
 		Task<?> jdbcInsertTask = loader.findTaskClass("jkaiser-jdbc-dml:1.0").getDeclaredConstructor().newInstance();
 		
 		final List<Object> postInsertParameters = new LinkedList<>();
-		postInsertParameters.add("$result.[0]['name']");	
+		postInsertParameters.add("$params.['sqlparams'][0]");	
 		final ParameterMappings postInsertParameterMappings = new ParameterMappings();	
 		postInsertParameterMappings.put("sqlparams", postInsertParameters);			
 						
@@ -145,7 +145,7 @@ class JobEngineTest {
 		jobContext.addParameter("dburl", "jdbc:postgresql://localhost:5432/kaiserdb");
 		jobContext.addParameter("dbusr", "postgres");
 		jobContext.addParameter("dbpasswd", "postgres");
-		jobContext.addParameter("sqlquery", "INSERT INTO tasks (name, version, created_at, script) values (?, ?, NOW(), ?) RETURNING name, version, created_at, script");
+		jobContext.addParameter("sqlquery", "INSERT INTO tasks (name, version, created_at, script) values (?, ?, NOW(), ?)");
 		
 		final List<Object> parameters = new LinkedList<>();
 		parameters.add("example_task1");

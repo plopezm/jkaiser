@@ -24,7 +24,7 @@ public class LoggerTask extends Task<String>{
 	
 	@Override
 	public Result<String> onCall(JobContext context) throws KaiserException {
-		log.info("Logger -> {}", context.getParameter("msg"));
+		log.info("[{}] {}", context.getJobName(), context.getParameter("msg"));
 		return new Result<String>() {
 
 			@Override

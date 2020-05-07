@@ -28,6 +28,7 @@ public class Job {
 	}
 	
 	public List<Result<?>> run(final JobContext context) throws ParameterNotFoundException {
+		context.setJobName(this.getName());
 		List<String> parametersErrorList = this.checkParameters(context);
 		if (!parametersErrorList.isEmpty()) {
 			throw new ParameterNotFoundException(parametersErrorList);
