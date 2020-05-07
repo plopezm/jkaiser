@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -125,10 +126,10 @@ class JobEngineTest {
 		final ParameterMappings postInsertParameterMappings = new ParameterMappings();	
 		postInsertParameterMappings.put("sqlparams", postInsertParameters);			
 						
-		postInsertParameterMappings.put("sqlquery", "SELECT * FROM tasks WHERE name = ?");	
+		postInsertParameterMappings.put("sqlquery", "SELECT * FROM db_task_node WHERE id = ?");	
 		Task<?> jdbcSelectTask = loader.findTaskClass("jkaiser-jdbc-dml:1.0").getDeclaredConstructor(ParameterMappings.class).newInstance(postInsertParameterMappings.clone());
 
-		postInsertParameterMappings.put("sqlquery", "DELETE FROM tasks WHERE name = ?");	
+		postInsertParameterMappings.put("sqlquery", "DELETE FROM db_task_node WHERE id = ?");	
 		Task<?> jdbcDeleteTask = loader.findTaskClass("jkaiser-jdbc-dml:1.0").getDeclaredConstructor(ParameterMappings.class).newInstance(postInsertParameterMappings);
 		
 		TaskTreeNode entrypoint = new TaskTreeNode(jdbcInsertTask);
@@ -145,12 +146,12 @@ class JobEngineTest {
 		jobContext.addParameter("dburl", "jdbc:postgresql://localhost:5432/kaiserdb");
 		jobContext.addParameter("dbusr", "postgres");
 		jobContext.addParameter("dbpasswd", "postgres");
-		jobContext.addParameter("sqlquery", "INSERT INTO tasks (name, version, created_at, script) values (?, ?, NOW(), ?)");
+		jobContext.addParameter("sqlquery", "INSERT INTO db_task_node (id, name, version) values (?, ?, ?)");
 		
 		final List<Object> parameters = new LinkedList<>();
+		parameters.add(UUID.randomUUID());
 		parameters.add("example_task1");
 		parameters.add("1.0");
-		parameters.add("log.info('hello')");
 		jobContext.addParameter("sqlparams", parameters);
 		
 		List<Result<?>> results = engine.run(jobContext, testJob);

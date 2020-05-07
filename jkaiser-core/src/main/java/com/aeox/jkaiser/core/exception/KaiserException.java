@@ -15,5 +15,4 @@ public class KaiserException extends Exception {
 		this.httpCode = httpCode;
 	}
 	
-	
 }
