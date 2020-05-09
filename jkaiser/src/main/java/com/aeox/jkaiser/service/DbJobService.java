@@ -7,12 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.aeox.jkaiser.core.exception.KaiserException;
-import com.aeox.jkaiser.core.exception.RuntimeKaiserException;
 import com.aeox.jkaiser.entity.DbJob;
 import com.aeox.jkaiser.entity.DbJobId;
 import com.aeox.jkaiser.entity.DbTaskNode;
 import com.aeox.jkaiser.exception.JobAlreadyExistsException;
+import com.aeox.jkaiser.exception.JobNotFoundException;
 import com.aeox.jkaiser.repository.DbJobRepository;
 import com.aeox.jkaiser.repository.DbTaskNodeRepository;
 
@@ -31,7 +30,7 @@ public class DbJobService {
 	@Transactional
 	public DbJob create(final DbJob job) {
 		final Optional<DbJob> existingJob = this.dbJobRepository.findById(new DbJobId(job.getName(), job.getVersion()));
-		if (!existingJob.isPresent()) {
+		if (existingJob.isPresent()) {
 			throw new JobAlreadyExistsException();
 		}
 		createTaskNode(job.getEntrypoint());
@@ -52,4 +51,20 @@ public class DbJobService {
 		return this.dbJobRepository.findAll();
 	}	
 	
+	public DbJob getById(final DbJobId id) {
+		final Optional<DbJob> existingJob = this.dbJobRepository.findById(id);
+		if (!existingJob.isPresent()) {
+			throw new JobNotFoundException();
+		}
+		return existingJob.get();
+	}
+	
+	@Transactional
+	public void delete(final DbJobId id) {
+		final Optional<DbJob> existingJob = this.dbJobRepository.findById(id);
+		if (!existingJob.isPresent()) {
+			throw new JobNotFoundException();
+		}
+		this.dbJobRepository.deleteById(id);
+	}
 }

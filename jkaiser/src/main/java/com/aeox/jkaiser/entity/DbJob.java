@@ -1,5 +1,6 @@
 package com.aeox.jkaiser.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -25,6 +26,6 @@ public class DbJob {
 	private String version;
 	private String description;
 	@NotNull
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.REMOVE)
 	private DbTaskNode entrypoint;
 }

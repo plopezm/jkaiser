@@ -2,6 +2,7 @@ package com.aeox.jkaiser.entity;
 
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -27,8 +28,8 @@ public class DbTaskNode {
 	private UUID id;
 	private String name;
 	private String version;
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.REMOVE)
 	private DbTaskNode onSuccess;
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.REMOVE)
 	private DbTaskNode onFailure;
 }
