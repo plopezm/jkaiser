@@ -39,10 +39,11 @@ public class TaskClassLoader {
 	
 	private Map<String, Class<? extends Task<?>>> taskClasses;
 
-	public TaskClassLoader() {
+	public TaskClassLoader() throws IOException {
 		final File file = new File(pluginsFolder);
 		file.mkdir();
 		taskClasses = new ConcurrentHashMap<>();
+		this.scan();
 	}
 	
 	public Class<? extends Task<?>> findTaskClass(final String id) {
@@ -61,7 +62,7 @@ public class TaskClassLoader {
 		}
 	}
 
-	public void scanTaskPlugins() throws IOException {
+	public void scan() throws IOException {
 		log.info("Loading new jars from folder...");
 		final List<File> paths = this.getJarPlugins();
 		paths.forEach((jarFile) -> {
@@ -147,7 +148,7 @@ public class TaskClassLoader {
 		return pluginTasks;
 	}
 		
-	public boolean isDriverClass(final Class<?> cls) throws NoSuchMethodException, SecurityException {
+	private boolean isDriverClass(final Class<?> cls) throws NoSuchMethodException, SecurityException {
 		if ((cls.getModifiers() & Modifier.ABSTRACT) != 0) { // Only instanciable classes
 			return false;
 		}
@@ -158,7 +159,7 @@ public class TaskClassLoader {
 		return true;
 	}
 	
-	public boolean isTaskClass(final Class<?> cls) throws NoSuchMethodException, SecurityException {
+	private boolean isTaskClass(final Class<?> cls) throws NoSuchMethodException, SecurityException {
 		if ((cls.getModifiers() & Modifier.ABSTRACT) != 0) { // Only instanciable classes
 			return false;
 		}
@@ -172,5 +173,26 @@ public class TaskClassLoader {
 			return false;
 		}
 		return true;
+	}
+
+	public List<Task<?>> getRegisteredTasks() {
+		return this.taskClasses.entrySet().stream()
+		.filter((entry) -> {
+			try {
+				return entry.getValue() != null && entry.getValue().getDeclaredConstructor() != null;
+			} catch (NoSuchMethodException | SecurityException e) {
+				e.printStackTrace();
+				return false;
+			}
+		})
+		.map((entry) -> {
+			try {
+				return entry.getValue().getDeclaredConstructor().newInstance();
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}).collect(Collectors.toList());
 	}
 }

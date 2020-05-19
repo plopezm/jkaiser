@@ -1,17 +1,18 @@
 package com.aeox.jkaiser.entity;
 
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.aeox.jkaiser.utils.HashMapConverter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
@@ -34,8 +35,8 @@ public class DbTaskNode {
 	private DbTaskNode onSuccess;
 	@ManyToOne(cascade = CascadeType.REMOVE)
 	private DbTaskNode onFailure;	
-	@OneToMany(cascade = CascadeType.REMOVE)
-	private List<DbTaskMapping> mappings;
+	@Convert(converter = HashMapConverter.class)
+	private Map<String, Object> mappings;
 	
 	public String getComposedId() {
 		return name + ":" + version;

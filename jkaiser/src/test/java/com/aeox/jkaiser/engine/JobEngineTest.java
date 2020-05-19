@@ -26,13 +26,13 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 class JobEngineTest {
 	
-	final TaskClassLoader loader = new TaskClassLoader();
+	TaskClassLoader loader;
 	final JobEngine engine = new JobEngine();
 
 	@BeforeEach
 	void setUp() throws Exception {
-		loader.scanTaskPlugins();
-		
+		loader = new TaskClassLoader();
+		loader.scan();		
 	}
 
 	@Test

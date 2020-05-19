@@ -1,6 +1,7 @@
 package com.aeox.jkaiser.api;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aeox.jkaiser.core.JobContext;
+import com.aeox.jkaiser.core.Result;
 import com.aeox.jkaiser.core.exception.ParameterNotFoundException;
 import com.aeox.jkaiser.entity.DbJob;
 import com.aeox.jkaiser.entity.DbJobId;
@@ -27,8 +29,9 @@ public class JobApi {
 	private EngineService engineService;
 	
 	@Autowired
-	public JobApi(final DbJobService dbJobService) {
+	public JobApi(final DbJobService dbJobService, final EngineService engineService) {
 		this.dbJobService = dbJobService;
+		this.engineService = engineService;
 	}
 
 	@GetMapping
@@ -52,8 +55,8 @@ public class JobApi {
 	}
 	
 	@PostMapping(path = "/{name}/{version}")
-	public void executeJob(@PathVariable final String name, @PathVariable final String version, @RequestBody final JobContext context) throws ParameterNotFoundException {
-		this.engineService.executeJob(context, name, version);
+	public List<Result<?>> executeJob(@PathVariable final String name, @PathVariable final String version, @RequestBody final Map<String, Object> params) throws ParameterNotFoundException {
+		return this.engineService.executeJob(new JobContext(params), name, version);
 	}
 	
 }

@@ -35,7 +35,7 @@ public class EngineServiceTest {
 	@Before
 	public void setUp() throws Exception {
 		pluginLoader = new TaskClassLoader();
-		pluginLoader.scanTaskPlugins();
+		pluginLoader.scan();
 		this.underTest.setPluginLoader(pluginLoader);
 	}
 
