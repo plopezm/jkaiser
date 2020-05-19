@@ -28,4 +28,8 @@ public class DbJob {
 	@NotNull
 	@ManyToOne(cascade = CascadeType.REMOVE)
 	private DbTaskNode entrypoint;
+	
+	public String getComposedId() {
+		return name + ":" + version;
+	}
 }

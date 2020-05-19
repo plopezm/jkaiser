@@ -31,7 +31,7 @@ class JobEngineTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		loader.loadTasks();
+		loader.scanTaskPlugins();
 		
 	}
 

@@ -23,10 +23,11 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.aeox.jkaiser.core.ParameterMappings;
 import com.aeox.jkaiser.core.Task;
+import com.aeox.jkaiser.exception.TaskNotFoundException;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -43,9 +44,24 @@ public class TaskClassLoader {
 		file.mkdir();
 		taskClasses = new ConcurrentHashMap<>();
 	}
+	
+	public Class<? extends Task<?>> findTaskClass(final String id) {
+		return this.taskClasses.get(id);
+	}
+	
+	public Task<?> getTaskInstanceByTaskId(final String id, final ParameterMappings parameterMappings) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		final Class<? extends Task<?>> clazz = this.taskClasses.get(id);
+		if (clazz == null) {
+			throw new TaskNotFoundException();
+		}
+		if (parameterMappings != null) {
+			return clazz.getDeclaredConstructor(ParameterMappings.class).newInstance(parameterMappings);
+		} else {
+			return clazz.getDeclaredConstructor().newInstance();
+		}
+	}
 
-	@Scheduled(initialDelay = 0, fixedDelay = 180000)
-	public void loadTasks() throws IOException {
+	public void scanTaskPlugins() throws IOException {
 		log.info("Loading new jars from folder...");
 		final List<File> paths = this.getJarPlugins();
 		paths.forEach((jarFile) -> {
@@ -130,11 +146,7 @@ public class TaskClassLoader {
 		}
 		return pluginTasks;
 	}
-	
-	public Class<? extends Task<?>> findTaskClass(String id) {
-		return this.taskClasses.get(id);
-	}
-	
+		
 	public boolean isDriverClass(final Class<?> cls) throws NoSuchMethodException, SecurityException {
 		if ((cls.getModifiers() & Modifier.ABSTRACT) != 0) { // Only instanciable classes
 			return false;
