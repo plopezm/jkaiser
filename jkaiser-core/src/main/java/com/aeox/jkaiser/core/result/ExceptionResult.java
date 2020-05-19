@@ -9,11 +9,11 @@ import lombok.Data;
 @AllArgsConstructor
 public class ExceptionResult implements Result<String> {
 
-	private String resultMsg;
+	private String result;
 	
 	@Override
 	public String getResult() {
-		return this.resultMsg;
+		return this.result;
 	}
 
 	@Override

@@ -27,6 +27,12 @@ public class JobContext {
 		this.params = new HashMap<>();
 	}
 	
+	public JobContext(final Map<String, Object> params) {
+		this.jobName = null;
+		this.previousResult = null;
+		this.params = params;
+	}
+	
 	public Set<String> getKeys() {
 		return this.params.keySet();
 	}
