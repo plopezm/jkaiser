@@ -22,6 +22,8 @@ public class JobContext {
 	private Result<?> previousResult;
 	
 	public JobContext() {
+		this.jobName = null;
+		this.previousResult = null;
 		this.params = new HashMap<>();
 	}
 	

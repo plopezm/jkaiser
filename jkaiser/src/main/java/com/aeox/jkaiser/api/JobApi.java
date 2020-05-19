@@ -13,14 +13,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aeox.jkaiser.core.JobContext;
+import com.aeox.jkaiser.core.exception.ParameterNotFoundException;
 import com.aeox.jkaiser.entity.DbJob;
 import com.aeox.jkaiser.entity.DbJobId;
 import com.aeox.jkaiser.service.DbJobService;
+import com.aeox.jkaiser.service.EngineService;
 
 @RestController
 @RequestMapping(path = "/jobs")
 public class JobApi {
 	private DbJobService dbJobService;
+	private EngineService engineService;
 	
 	@Autowired
 	public JobApi(final DbJobService dbJobService) {
@@ -45,6 +49,11 @@ public class JobApi {
 	@DeleteMapping(path = "/{name}/{version}")
 	public void deleteJob(@PathVariable final String name, @PathVariable final String version) {
 		this.dbJobService.delete(new DbJobId(name, version));
+	}
+	
+	@PostMapping(path = "/{name}/{version}")
+	public void executeJob(@PathVariable final String name, @PathVariable final String version, @RequestBody final JobContext context) throws ParameterNotFoundException {
+		this.engineService.executeJob(context, name, version);
 	}
 	
 }
